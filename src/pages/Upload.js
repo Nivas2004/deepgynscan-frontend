@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 
 export default function Upload() {
-  const API_URL = process.env.REACT_APP_BACKEND_URL; // Backend URL from .env
+  // Directly set backend URL for local development
+  const API_URL = "https://deepgynscan-backend-13.onrender.com";
 
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
@@ -87,6 +88,12 @@ export default function Upload() {
       console.error("Error:", error);
       setAlert({ type: "error", message: "Report generation failed. Check console." });
     }
+  };
+
+  const getColor = (category) => {
+    if (category === "High Risk / Cancerous") return "bg-red-600";
+    if (category === "Pre-cancerous") return "bg-yellow-500";
+    return "bg-green-600"; // Normal
   };
 
   return (
@@ -199,23 +206,19 @@ export default function Upload() {
             </h2>
 
             <div className="space-y-3">
-              {result.details &&
-                Object.entries(result.details).map(([label, value]) => (
+              {result.mapped_details &&
+                Object.entries(result.mapped_details).map(([label, data]) => (
                   <div key={label}>
                     <div className="flex justify-between text-sm mb-1">
-                      <span>{label}</span>
-                      <span>{(value * 100).toFixed(2)}%</span>
+                      <span>
+                        {label} ({data.category})
+                      </span>
+                      <span>{(data.confidence * 100).toFixed(2)}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-3">
                       <div
-                        className={`h-3 rounded-full ${
-                          label === "High Risk"
-                            ? "bg-red-600"
-                            : label === "Pre-cancerous"
-                            ? "bg-yellow-500"
-                            : "bg-green-600"
-                        }`}
-                        style={{ width: `${value * 100}%` }}
+                        className={`h-3 rounded-full ${getColor(data.category)}`}
+                        style={{ width: `${data.confidence * 100}%` }}
                       ></div>
                     </div>
                   </div>
